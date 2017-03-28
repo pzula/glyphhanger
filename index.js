@@ -26,6 +26,10 @@ if( !argv._ || !argv._.length ) {
 	out.push( "       glyphhanger https://google.com https://www.filamentgroup.com" );
 	out.push( "" );
 	out.push( "arguments: " );
+	out.push( "  -f 200");
+	out.push( "       Output only text with this font weight attribute." );
+	out.push( "  -l en");
+	out.push( "       Output only text with this declared ISO language attribute." );
 	out.push( "  -w abcdef" );
 	out.push( "       A list of whitelist characters." );
 	out.push( "  --US_ASCII" );
@@ -57,6 +61,21 @@ if( argv.US_ASCII ) {
 	whitelist += " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 }
 childArgs.push( whitelist );
+
+// Language
+var lang = "";
+if( argv.l ) {
+	lang += argv.l;
+}
+childArgs.push( lang );
+
+// Font Weight
+var weight = "";
+if( argv.f ) {
+	weight += argv.f;
+}
+
+childArgs.push( weight );
 
 // Spider for URLs
 urlsChildArgs = urlsChildArgs.concat( argv._ );

@@ -4,6 +4,7 @@ var CharacterSet = require( "characterset" );
 var Rsvp = require( "rsvp" );
 var args = require( "system" ).args;
 
+
 var pluginName = "glyphhanger";
 
 function requestUrl( url ) {
@@ -15,6 +16,7 @@ function requestUrl( url ) {
 		};
 
 		page.onLoadFinished = function( status ) {
+			console.log(args);
 			if( status !== "success" ) {
 				reject( "onLoadFinished error", status );
 			}
@@ -51,7 +53,9 @@ var promises = [];
  2. isVerbose ("true" or "false")
  3. output unicodes
  4. whitelisted characters
- 5 and up. urls
+ 5. language
+ 6. weight
+ 7 and up. urls
 */
 
 // Remove the script name argument
@@ -69,6 +73,13 @@ if( whitelist.length ) {
 	combinedCharacterSet = combinedCharacterSet.union( new CharacterSet( whitelist ) );
 }
 
+// Language
+var language = args.shift();
+
+// Weight
+var weight = args.shift();
+
+
 // Add URLS
 args.forEach(function( url ) {
 	promises.push( requestUrl( url ) );
@@ -85,6 +96,15 @@ Rsvp.all( promises ).then( function( results ) {
 	if( isVerbose ) {
 		console.log( pluginName + " output (" + combinedCharacterSet.getSize() + "):" );
 	}
+
+	if( language ) {
+		console.log( "language is " + language );
+	}
+
+	if( weight ) {
+		console.log( "weight is " + weight );
+	}
+
 
 	if( isCodePoints ) {
 		console.log( combinedCharacterSet.toArray().map(function( code ) {
