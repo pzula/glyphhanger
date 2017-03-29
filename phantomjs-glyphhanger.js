@@ -8,10 +8,9 @@ var args = require( "system" ).args;
 var pluginName = "glyphhanger";
 var options = {};
 
-function requestUrl( url, options ) {
+function requestUrl( url ) {
 	return new Rsvp.Promise(function( resolve, reject ) {
 		var page = webpage.create();
-		var myOptions = options;
 
 		page.onConsoleMessage = function( msg ) {
 			console.log( pluginName + " phantom console:", msg );
@@ -19,7 +18,6 @@ function requestUrl( url, options ) {
 
 		page.onLoadFinished = function( status ) {
 			console.log(args);
-			console.log("logging inside onLoadFinished " + myOptions.language);
 			if( status !== "success" ) {
 				reject( "onLoadFinished error", status );
 			}
@@ -87,7 +85,7 @@ var weight = args.shift();
 
 // Add URLS
 args.forEach(function( url ) {
-	promises.push( requestUrl( url, options ) );
+	promises.push( requestUrl( url ) );
 	if( isVerbose ) {
 		console.log( pluginName + " requesting:", url );
 	}
