@@ -6,10 +6,12 @@ var args = require( "system" ).args;
 
 
 var pluginName = "glyphhanger";
+var options = {};
 
-function requestUrl( url ) {
+function requestUrl( url, options ) {
 	return new Rsvp.Promise(function( resolve, reject ) {
 		var page = webpage.create();
+		var myOptions = options;
 
 		page.onConsoleMessage = function( msg ) {
 			console.log( pluginName + " phantom console:", msg );
@@ -17,9 +19,12 @@ function requestUrl( url ) {
 
 		page.onLoadFinished = function( status ) {
 			console.log(args);
+			console.log("logging inside onLoadFinished " + myOptions.language);
 			if( status !== "success" ) {
 				reject( "onLoadFinished error", status );
 			}
+
+			page.evaluateJavaScript('function() { window.OPTIONS = ' + JSON.stringify(options) + ';}');
 
 			if( page.injectJs( "node_modules/characterset/lib/characterset.js" ) &&
 					page.injectJs( "glyphhanger.js" ) ) {
@@ -82,11 +87,18 @@ var weight = args.shift();
 
 // Add URLS
 args.forEach(function( url ) {
-	promises.push( requestUrl( url ) );
+	promises.push( requestUrl( url, options ) );
 	if( isVerbose ) {
 		console.log( pluginName + " requesting:", url );
 	}
 });
+
+if(language) {
+	options.language = language;
+}
+if(weight) {
+	options.weight = weight;
+}
 
 Rsvp.all( promises ).then( function( results ) {
 	results.forEach( function( result ) {

@@ -12,11 +12,19 @@
 		this.set = new CharacterSet();
 	};
 
-	GH.prototype.init = function( parentNode ) {
+	GH.prototype.init = function( parentNode, options ) {
 		if( parentNode ) {
-			this.findTextNodes( parentNode ).forEach( function( node ) {
-				this.saveGlyphs( node.nodeValue );
-			}.bind( this ) );
+			console.log("Options are " + OPTIONS );
+			if(OPTIONS) {
+				console.log("Yay, we're inside the OPTIONS option!");
+				if(OPTIONS.language) {
+					console.log("Yay, we're inside the language option!");
+				}
+			} else {
+				this.findTextNodes(parentNode).forEach(function (node) {
+					this.saveGlyphs(node.nodeValue);
+				}.bind(this));
+			}
 		}
 	}
 
