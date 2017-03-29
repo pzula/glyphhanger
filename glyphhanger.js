@@ -16,6 +16,9 @@
 		if( parentNode ) {
 			if(OPTIONS.language) {
 				console.log("Yay, we're inside the language option!");
+				this.findTextNodesWithLangAttribute(parentNode, OPTIONS.language).forEach(function (node) {
+					this.saveGlyphs(node.nodeValue);
+				}.bind(this));
 			} else {
 				this.findTextNodes(parentNode).forEach(function (node) {
 					this.saveGlyphs(node.nodeValue);
@@ -23,6 +26,42 @@
 			}
 		}
 	}
+
+	GH.prototype.findTextNodesWithLangAttribute = function(parentNode, selectedLanguage){
+		var _ = this;
+		var treeWalker = document.createTreeWalker(
+			parentNode,
+			// Only consider nodes that are text nodes (nodeType 3)
+			NodeFilter.SHOW_TEXT,
+			// Object containing the function to use for the acceptNode method
+			// of the NodeFilter
+			{
+				acceptNode: function(node) {
+					// Logic to determine whether to accept, reject or skip node
+					// In this case, only accept nodes that have content
+					// other than whitespace
+					if (!/^\s*$/.test(node.data)) {
+						// Test the language attribute
+						var nearestParentWithLang = node.parentElement;
+						if (!nearestParentWithLang.hasAttribute("lang")) {
+							nearestParentWithLang = _.findNearestParentElementWithLang(node.parentElement);
+						}
+						if ( nearestParentWithLang.attributes["lang"].value == selectedLanguage) {
+							return NodeFilter.FILTER_ACCEPT;
+						}
+					}
+				}
+			},
+			false
+		);
+
+		var nodeList = [];
+
+		while (treeWalker.nextNode()) nodeList.push(treeWalker.currentNode);
+
+		return nodeList;
+	};
+
 
 	GH.prototype.findTextNodes = function( node ) {
 		// via http://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
@@ -35,6 +74,14 @@
 			}
 		}
 		return all;
+	};
+
+	GH.prototype.findNearestParentElementWithLang = function(textParent) {
+		if(!textParent) return textParent;
+		while(textParent){
+			if(textParent.hasAttribute("lang")) return textParent;
+			else textParent = textParent.parentElement;
+		}
 	};
 
 	GH.prototype.saveGlyphs = function( text ) {
